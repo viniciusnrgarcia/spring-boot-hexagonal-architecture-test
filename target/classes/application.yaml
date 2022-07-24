@@ -1,0 +1,85 @@
+server:
+  port: ${SERVER_PORT:8080}
+
+spring:
+  application:
+    name: spring-boot-hexagonal-architecture-test
+  main:
+    banner-mode: OFF
+  datasource:
+    hikari:
+      connectionTimeout: ${HIKARI_MAXIMUM_CON_TIMEOUT:20000}
+      maximumPoolSize: ${HIKARI_MAXIMUM_POOL_SIZE:5}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    testWhileIdle: 'true'
+    password: ${DATASOURCE_PASSWORD:123456}
+    username: ${DATASOURCE_USERNAME:root}
+    url: ${DATASOURCE_URL:jdbc:mysql://localhost:3306/order?useSSL=false&createDatabaseIfNotExist=true}
+    validationQuery: SELECT 1
+  jpa:
+    hibernate:
+      ddl-auto: none
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    properties:
+      hibernate:
+        format_sql: 'true'
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        use: 'true'
+        show_sql: 'true'
+    show-sql: 'true'
+  rabbitmq:
+    exchange-name: ${RABBITMQ_EXCHANGE_NAME:order-created-exchange.fanout.exchange}
+    product-not-available-exchange-name: ${RABBITMQ_EXCHANGE_NAME:product-not-available-exchange.fanout.exchange}
+    payment-completed-exchange-name: ${RABBITMQ_PAYMENT_COMPLETED_EXCHANGE_NAME:payment-completed-exchange.fanout.exchange}
+    routingKey: ${RABBITMQ_EXCHANGE_ROUTING_KEY:}
+    queue:
+      order-created: ${RABBITMQ_QUEUE_ORDER_CREATED:order-created-exchange.fanout.queue}
+      product-not-available: ${RABBITMQ_QUEUE_ORDER_CREATED:product-not-available-exchange.fanout.queue}
+      payment-completed: ${RABBITMQ_QUEUE_PAYMENT_COMPLETED:payment-completed-exchange.fanout.queue}
+    connection-factory:
+      hostname: ${RABBITMQ_CONNECTION_FACTORY_HOSTNAME:localhost}
+      port: ${RABBITMQ_CONNECTION_FACTORY_PORT:5672}
+      username: ${RABBITMQ_USERNAME:guest}
+      password: ${RABBITMQ_PASSWORD:guest}
+    rabbit-template:
+      initial-interval: 500
+      multiplier: 10
+      max-interval: 10000
+
+springdoc:
+  swagger-ui:
+    operationsSorter: method
+    enabled: 'true'
+    path: /swagger-ui.html
+    display-request-duration: 'true'
+    groups-order: DESC
+  api-docs:
+    path: /api-docs
+    enabled: 'true'
+  version: '''@springdoc.version@'''
+  show-actuator: 'true'
+
+management:
+  security:
+    enabled: false
+  endpoints:
+    web:
+      exposure:
+        include:
+          - hystrix.stream
+          - actuator
+          - logfile
+          - metrics
+          - health
+          - info
+          - api-docs
+          - swagger-ui.html
+  endpoint:
+    health:
+      show-details: ALWAYS
+
+logging:
+  level:
+    org:
+      springframework: info
+    sql: debug
